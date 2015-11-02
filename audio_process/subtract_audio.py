@@ -20,8 +20,11 @@ from .models import Document, User, Audio
 # from .forms import DocumentForm
 
 
-import scipy.io.wavfile
-from scipy.io.wavfile import write
+# import scipy.io.wavfile
+# from scipy.io.wavfile import write
+import wave
+import struct
+
 import numpy as np
 import adaptfilt as adf
 import room_simulate
@@ -57,11 +60,26 @@ def subtract(newdoc, newdoc2, current_user):
     # print recording_path
     # print settings.BASE_DIR
 
-    rate, data = scipy.io.wavfile.read(recording_path)
-    r = data.astype(np.float64)
 
-    rate, data = scipy.io.wavfile.read(original_audio_path)
-    o = data.astype(np.float64)
+    input_wav = wave.open (recording_path, "r")
+    (nchannels, sampwidth, framerate, nframes, comptype, compname) = input_wav.getparams ()
+    frames = input_wav.readframes (nframes * nchannels)
+    out = struct.unpack_from ("%dh" % nframes * nchannels, frames)
+
+    r = np.asarray(out, np.float64)
+
+    # rate, data = scipy.io.wavfile.read(recording_path)
+    # r = data.astype(np.float64)
+
+    input_wav = wave.open (original_audio_path, "r")
+    (nchannels, sampwidth, framerate, nframes, comptype, compname) = input_wav.getparams ()
+    frames = input_wav.readframes (nframes * nchannels)
+    out = struct.unpack_from ("%dh" % nframes * nchannels, frames)
+
+    o = np.asarray(out, np.float64)
+
+    # rate, data = scipy.io.wavfile.read(original_audio_path)
+    # o = data.astype(np.float64)
 
     print len(o)
     print len(r)
@@ -83,7 +101,13 @@ def subtract(newdoc, newdoc2, current_user):
 
     output_path = os.path.join(settings.MEDIA_ROOT,output_filename+'_SUBTRACTED.wav')
     # output_path = os.path.join(settings.MEDIA_ROOT, ['/Ghosts_TEST2.wav'] )
-    write(output_path , 44100, scaled_e)
+
+    
+    output_wav = wave.open (output_path, "w")
+    output_wav.setparams((nchannels, sampwidth, framerate, nframes, comptype, compname))
+    output_wav.writeframes(scaled_e)
+
+    # write(output_path , 44100, scaled_e)
 
     f = open(output_path)
     output_file = File(f)

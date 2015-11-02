@@ -21,8 +21,11 @@ from .models import Document, User, Audio
 from .forms import DocumentForm
 
 # DELETE??
-import scipy.io.wavfile
-from scipy.io.wavfile import write
+# import scipy.io.wavfile
+# from scipy.io.wavfile import write
+
+
+
 import numpy as np
 import room_simulate
 import subtract_audio
@@ -54,7 +57,7 @@ def download(request):
 
             # subtract_audio.subtract(newdoc, newdoc2)
             # subtract_audio.subtract.delay(newdoc, newdoc2)
-            subtract_audio.subtract.delay(newdoc, newdoc2, current_user,output_path)
+            subtract_audio.subtract.delay(newdoc, newdoc2, current_user)
                 
             documents = Audio.objects.all()
             # context = {'documents': documents, 'form': form, 'output_path': output_path}
@@ -68,6 +71,7 @@ def download(request):
         # Load documents for the list page
     #     documents = Document.objects.all()
     documents = Audio.objects.all()
+    
         # output_url = os.path.join(settings.MEDIA_ROOT, raw_audio_filename)  
     output_path = '/media/Ghosts_echoed_RIR_noise_testfile_SUBTRACTED.wav'
     context = {'documents': documents, 'form': form, 'output_path': output_path}
